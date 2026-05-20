@@ -424,14 +424,24 @@ function initializeBlocks() {
 function startBlock(blockNum) {
   currentBlock = blockNum;
   const startIdx = (blockNum - 1) * BLOCK_SIZE;
-  const endIdx = startIdx + BLOCK_SIZE;
-  const blockQuestions = ALL_QUESTIONS.slice(startIdx, endIdx);
-  questions = blockQuestions.map(q => {
-    const opts = [...q.options];
-    const correctAnswer = opts[q.correct];
-    const shuffled = shuffle(opts);
-    return { q: q.q, options: shuffled, correctAnswer };
-  });
+  // Build blockQuestions of length BLOCK_SIZE. If the full question set
+  // isn't present, wrap around the available questions so every block
+  // (1..TOTAL_BLOCKS) can be started.
+  const blockQuestions = [];
+  if (!Array.isArray(ALL_QUESTIONS) || ALL_QUESTIONS.length === 0) {
+    questions = [];
+  } else {
+    for (let i = 0; i < BLOCK_SIZE; i++) {
+      const idx = (startIdx + i) % ALL_QUESTIONS.length;
+      blockQuestions.push(ALL_QUESTIONS[idx]);
+    }
+    questions = blockQuestions.map(q => {
+      const opts = [...q.options];
+      const correctAnswer = opts[q.correct];
+      const shuffled = shuffle(opts);
+      return { q: q.q, options: shuffled, correctAnswer };
+    });
+  }
   current = 0;
   score = 0;
   wrong = 0;
