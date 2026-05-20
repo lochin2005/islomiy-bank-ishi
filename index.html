@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Islom Bank Ishi — 15 Blok Test</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #4f9cf9;
+    --accent2: #7c5cfc;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --text: #e8eaf6;
+    --text2: #9197b3;
+    --text3: #5c6282;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 720px;
+  }
+
+  #startScreen { text-align: center; animation: fadeIn .4s ease; }
+  .logo { font-size: 48px; margin-bottom: 16px; }
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .subtitle { color: var(--text2); font-size: 15px; margin-bottom: 36px; }
+
+  .blocks-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .block-btn {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 16px;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text);
+    cursor: pointer;
+    transition: all .2s;
+  }
+
+  .block-btn:hover {
+    border-color: var(--accent);
+    background: rgba(79,156,249,.08);
+    transform: translateY(-2px);
+  }
+
+  .block-btn:active { transform: translateY(0); }
+
+  #quizScreen { animation: fadeIn .3s ease; }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .progress-wrap {
+    flex: 1;
+    background: var(--surface);
+    border-radius: 99px;
+    height: 8px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px;
+    transition: width .4s ease;
+  }
+
+  .header-info {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .q-counter {
+    font-size: 13px;
+    color: var(--text2);
+    font-family: 'IBM Plex Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .score-badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 13px;
+    color: var(--text2);
+    white-space: nowrap;
+  }
+
+  .score-badge span { color: var(--green); font-weight: 600; }
+
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+
+  .q-num {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+
+  .q-text {
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .opt {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    cursor: pointer;
+    transition: all .15s;
+    text-align: left;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.45;
+  }
+
+  .opt:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(79,156,249,.07);
+  }
+
+  .opt .opt-letter {
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text2);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .opt.correct {
+    border-color: var(--green);
+    background: rgba(34,197,94,.1);
+  }
+  .opt.correct .opt-letter { background: var(--green); color: #000; }
+
+  .opt.wrong {
+    border-color: var(--red);
+    background: rgba(239,68,68,.1);
+  }
+  .opt.wrong .opt-letter { background: var(--red); color: #fff; }
+
+  .opt.dim { opacity: .4; }
+  .opt:disabled { cursor: default; }
+
+  .feedback {
+    display: none;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 4px;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .feedback.show { display: flex; }
+  .feedback.correct-fb { background: rgba(34,197,94,.12); border: 1px solid rgba(34,197,94,.3); color: var(--green); }
+  .feedback.wrong-fb { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3); color: #ff8080; }
+
+  .btn-next {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--text);
+    cursor: pointer;
+    transition: all .2s;
+    margin-top: 8px;
+    display: none;
+  }
+
+  .btn-next.show { display: block; }
+  .btn-next:hover { border-color: var(--accent); color: var(--accent); }
+
+  #resultScreen { text-align: center; animation: fadeIn .4s ease; }
+
+  .result-emoji { font-size: 64px; margin-bottom: 16px; }
+  .result-title { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  .result-sub { color: var(--text2); font-size: 15px; margin-bottom: 24px; }
+
+  .result-block {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 32px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .result-score-big {
+    font-size: 72px;
+    font-weight: 700;
+    font-family: 'IBM Plex Mono', monospace;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .result-of { color: var(--text2); font-size: 16px; margin-bottom: 32px; }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .r-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 12px;
+  }
+
+  .r-box .r-num {
+    font-size: 26px;
+    font-weight: 700;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .r-box .r-lbl { font-size: 11px; color: var(--text3); margin-top: 4px; text-transform: uppercase; letter-spacing: .07em; }
+  .r-box.c .r-num { color: var(--green); }
+  .r-box.w .r-num { color: var(--red); }
+  .r-box.p .r-num { color: var(--accent); }
+
+  .bar-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+
+  .bar-label { font-size: 13px; color: var(--text2); margin-bottom: 10px; }
+  .bar-track { background: var(--surface2); border-radius: 99px; height: 12px; overflow: hidden; }
+  .bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--green), var(--accent));
+    transition: width 1s ease;
+  }
+
+  .result-btns { display: flex; gap: 12px; }
+
+  .btn-restart {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .2s;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    border: none;
+  }
+
+  .btn-restart:hover { opacity: .9; }
+
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  @media(max-width: 520px) {
+    .blocks-grid { grid-template-columns: repeat(3, 1fr); }
+    .result-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="startScreen" class="screen active">
+    <div class="logo">📚</div>
+    <h1>Islom Bank Ishi</h1>
+    <p class="subtitle">Blokni tanlang va testni boshlang</p>
+    <div class="blocks-grid" id="blocksContainer"></div>
+  </div>
+
+  <div id="quizScreen" class="screen">
+    <div class="header">
+      <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="header-info">
+        <div class="score-badge">✓ <span id="scoreCount">0</span></div>
+        <div class="q-counter" id="qCounter">1/20</div>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-num" id="qNum">Savol 1</div>
+      <div class="q-text" id="qText"></div>
+    </div>
+    <div class="options" id="optionsContainer"></div>
+    <div class="feedback" id="feedbackEl"></div>
+    <button class="btn-next" id="btnNext" onclick="nextQuestion()">Keyingi savol →</button>
+  </div>
+
+  <div id="resultScreen" class="screen">
+    <div class="result-emoji" id="resultEmoji">🎉</div>
+    <div class="result-title" id="resultTitle">Ajoyib natija!</div>
+    <div class="result-sub" id="resultSub">Test yakunlandi</div>
+    <div class="result-block" id="resultBlock">Blok 1 tugadi ✓</div>
+    <div class="result-score-big" id="resultScoreBig">0</div>
+    <div class="result-of" id="resultOf">20 ta savoldan</div>
+    <div class="result-grid">
+      <div class="r-box c"><div class="r-num" id="rCorrect">0</div><div class="r-lbl">To'g'ri</div></div>
+      <div class="r-box w"><div class="r-num" id="rWrong">0</div><div class="r-lbl">Noto'g'ri</div></div>
+      <div class="r-box p"><div class="r-num" id="rPercent">0%</div><div class="r-lbl">Ball</div></div>
+    </div>
+    <div class="bar-container">
+      <div class="bar-label">Natija darajasi</div>
+      <div class="bar-track"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+    </div>
+    <div class="result-btns">
+      <button class="btn-restart" onclick="backToStart()">🔄 Qaytadan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL_QUESTIONS = [{"q":"Quyidagilardan qaysi biri an'anaviy moliyalashtirishning lizing shakliga o'xshash","options":["ijara","Salam","Sukuk","Murobaha"],"correct":0},{"q":"Salam shartnomasining amalda bo'lishining nechta sharti mavjud?","options":["5","7","9","3"],"correct":0},{"q":"\"Vadia\" nimani anglatadi ?","options":["ishonchga asoslangan vazifalarni bajarish","investitsion loyihalarni moliyalashtirish usuli","bankning mamlakatdan tashqaridagi filiali","islom bankining mijozlar oldidagi majburiyati turi"],"correct":0},{"q":"Quyidagi unsurlardan qaysi biri \"g'arar\"ga yaqin","options":["maysir","ijara","hiba","vadia"],"correct":0},{"q":"Takofulning zamonaviy tizimi joriy etilgan davr","options":["1979 yil","1963 yil","1956 yil","1982 yil"],"correct":0},{"q":"Tomonlarning kelishuvni bekor qilish yoki chaqirib olish huquqi nima?","options":["Fasx","Fiqh","Ushr","Uzufrukt"],"correct":0},{"q":"\"Teskari murobaha\"ni ko'rsating","options":["Tavarruq","Fasx","Fiqh","Ushr"],"correct":0},{"q":"O'zbekiston ITBga qachon qo'shildi?","options":["2003 yil sentyabr","2001 yil may","2013 yil sentyabr","2005 yil dekabr"],"correct":0},{"q":"Quyidagilardan qaysi biri islomiy moliya vositalarining xususiyati hisoblanmaydi?","options":["kreditlardan yuqori foizda foydalanish va daromadini oshirish","sudxo'rlikning mavjud emasligi","voqelikdagi qo'shimcha qiymatning yaratilishi","axloqiy-ma'naviy jihatlardan tashkil topganligi"],"correct":0},{"q":"Islomiy moliya vositalarining nechta tarkibiy qismlari mavjud?","options":["to'rt","beshta","sakkizta","cheklanmagan"],"correct":0},{"q":"Quyidagilardan qaysi biri vositachilik bitimlari hisoblanmaydi?","options":["muskat","kafolat","vakolat","takoful"],"correct":0},{"q":"Quyidagilardan qaysi biri tranzaktsion bitim hisoblanadi","options":["istisno'","muzoraba","ju'la","kafolat"],"correct":0},{"q":"Quyidagilardan qaysi biri vositachilik bitimlari hisoblanadi?","options":["muzoraba","murobaha","musovama","bay salam"],"correct":0},{"q":"Qarz bilan bog'liq bo'lgan asosiy moliyalashtirish vositasi bu .....","options":["murobaha","mushoraka","muzoraba","sharika"],"correct":0},{"q":"Quyidagilardan qaysi biri ulushli kapitalda ishtirok etishga asoslangan vosita hisoblanadi?","options":["muzoraba","salam","sukuk","vadia"],"correct":0},{"q":"1979 yilda Islom moliyasining qaysi zamonaviy tizimi joriy etilgan","options":["Takofulning zamonaviy tizimi","Sukukning zamonaviy tizimi","Muzoraba tizimi","Musharaka tizimi"],"correct":0},{"q":"Sukuk sertifikatlarini muomalaga chiqarish bosqichi …. tadan iborat","options":["5","8","7","3"],"correct":0},{"q":"Islomiy bank mahsulotlaridan balansdan tashqari mahsulot bu ….","options":["akkreditiv","lizing","salam","depozit"],"correct":0},{"q":"Quyidagilardan qaysi biri islomiy bank balansi aktivida turadi?","options":["ju'la","vadia","muzoraba","mushoraka"],"correct":0},{"q":"Ju'la islomiy bank balansining ……. turadi?","options":["Aktivida","Passivida","Depozitida","Mushorakada"],"correct":0}];
+
+let currentBlock = 0;
+let questions = [];
+let current = 0;
+let score = 0;
+let wrong = 0;
+let answered = false;
+let sessionResults = [];
+
+const TOTAL_QUESTIONS = 300;
+const BLOCK_SIZE = 20;
+const TOTAL_BLOCKS = TOTAL_QUESTIONS / BLOCK_SIZE;
+const LETTERS = ['A','B','C','D'];
+
+document.addEventListener('DOMContentLoaded', () => { initializeBlocks(); });
+
+function initializeBlocks() {
+  const container = document.getElementById('blocksContainer');
+  container.innerHTML = '';
+  for (let i = 1; i <= TOTAL_BLOCKS; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'block-btn';
+    btn.textContent = i;
+    btn.onclick = () => startBlock(i);
+    container.appendChild(btn);
+  }
+}
+
+function startBlock(blockNum) {
+  currentBlock = blockNum;
+  const startIdx = (blockNum - 1) * BLOCK_SIZE;
+  const endIdx = startIdx + BLOCK_SIZE;
+  const blockQuestions = ALL_QUESTIONS.slice(startIdx, endIdx);
+  questions = blockQuestions.map(q => {
+    const opts = [...q.options];
+    const correctAnswer = opts[q.correct];
+    const shuffled = shuffle(opts);
+    return { q: q.q, options: shuffled, correctAnswer };
+  });
+  current = 0;
+  score = 0;
+  wrong = 0;
+  sessionResults = [];
+  showScreen('quizScreen');
+  renderQuestion();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  answered = false;
+  document.getElementById('qNum').textContent = `Savol ${current + 1}`;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('qCounter').textContent = `${current + 1}/${questions.length}`;
+  document.getElementById('progressBar').style.width = `${(current / questions.length) * 100}%`;
+  document.getElementById('scoreCount').textContent = score;
+
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = `<span class="opt-letter">${LETTERS[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedbackEl');
+  fb.className = 'feedback';
+  fb.textContent = '';
+  document.getElementById('btnNext').className = 'btn-next';
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const isCorrect = q.options[idx] === q.correctAnswer;
+  if (isCorrect) score++; else wrong++;
+  sessionResults.push({ q: q.q, options: q.options, correctAnswer: q.correctAnswer, userAnswer: q.options[idx], wasCorrect: isCorrect });
+
+  const opts = document.querySelectorAll('.opt');
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (q.options[i] === q.correctAnswer) btn.classList.add('correct');
+    if (i === idx && !isCorrect) btn.classList.add('wrong');
+    if (i !== idx && q.options[i] !== q.correctAnswer) btn.classList.add('dim');
+  });
+
+  showFeedback(isCorrect, isCorrect ? '✓ To\'g\'ri!' : `✗ Noto'g'ri. To'g'ri javob: ${q.correctAnswer}`);
+  document.getElementById('scoreCount').textContent = score;
+  document.getElementById('btnNext').className = 'btn-next show';
+}
+
+function showFeedback(correct, msg) {
+  const fb = document.getElementById('feedbackEl');
+  fb.className = `feedback show ${correct ? 'correct-fb' : 'wrong-fb'}`;
+  fb.textContent = msg;
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) {
+    showResult();
+    return;
+  }
+  renderQuestion();
+}
+
+function showResult() {
+  const total = questions.length;
+  const pct = Math.round((score / total) * 100);
+  document.getElementById('resultScoreBig').textContent = score;
+  document.getElementById('resultOf').textContent = `${total} ta savoldan`;
+  document.getElementById('rCorrect').textContent = score;
+  document.getElementById('rWrong').textContent = wrong;
+  document.getElementById('rPercent').textContent = pct + '%';
+  document.getElementById('resultBlock').textContent = `Blok ${currentBlock} tugadi ✓`;
+
+  let emoji = '😔', title = 'Yana harakat qiling';
+  if (pct >= 90) { emoji = '🏆'; title = 'Ajoyib! Siz tayyor!'; }
+  else if (pct >= 75) { emoji = '🎉'; title = 'Yaxshi natija!'; }
+  else if (pct >= 60) { emoji = '👍'; title = 'Qonikarli'; }
+  else if (pct >= 40) { emoji = '📚'; title = 'Ko\'proq o\'qing'; }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSub').textContent = `${pct}% to'g'ri javob`;
+
+  showScreen('resultScreen');
+  setTimeout(() => {
+    document.getElementById('barFill').style.width = pct + '%';
+  }, 100);
+}
+
+function backToStart() {
+  showScreen('startScreen');
+}
+</script>
+</body>
+</html>
